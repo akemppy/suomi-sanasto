@@ -5,6 +5,6 @@
   "type": "module",
   "description": "Finnish vocabulary flashcards - static site with a Netlify Blobs progress store",
   "dependencies": {
-    "@netlify/blobs": "^11.0.0"
+    "@netlify/blobs": "^10.7.13"
   }
 }
