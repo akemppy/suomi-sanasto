@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Sanasto</title>
+<style>
+:root{--bg:#0f1319;--panel:#171d26;--panel2:#1e2632;--line:#2b3543;--tx:#e8edf4;--dim:#8b98a9;
+ --acc:#3b82f6;--ok:#22c55e;--rad:12px}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--tx);font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-text-size-adjust:100%}
+.wrap{max-width:820px;margin:0 auto;padding:14px 14px 90px}
+h1{font-size:20px;margin:0}
+h2{font-size:15px;margin:22px 0 8px;color:var(--dim);text-transform:uppercase;letter-spacing:.06em}
+.hdr{display:flex;align-items:center;gap:10px;padding:12px 0 6px;border-bottom:1px solid var(--line);margin-bottom:14px;flex-wrap:wrap}
+.who{font-size:13px;color:var(--dim)}
+.who b{color:var(--tx)}
+button{font:inherit;color:var(--tx);background:var(--panel2);border:1px solid var(--line);border-radius:var(--rad);padding:10px 14px;cursor:pointer;transition:.12s}
+button:hover{border-color:#3d4b5e}
+button:active{transform:translateY(1px)}
+button.pri{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:600}
+button.sm{padding:6px 10px;font-size:13px;border-radius:9px}
+button.gh{background:transparent}
+input,select{font:inherit;color:var(--tx);background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;width:100%}
+input:focus,select:focus{outline:none;border-color:var(--acc)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--rad);padding:16px;margin-bottom:14px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.chip{display:inline-flex;align-items:center;gap:7px;background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:7px 13px;cursor:pointer;font-size:14px;user-select:none}
+.chip.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.chip .ct{font-size:11px;opacity:.75}
+.nav{display:flex;gap:6px;margin-bottom:14px}
+.nav button{flex:1;border-radius:10px}
+.nav button.on{background:var(--acc);border-color:var(--acc);color:#fff;font-weight:600}
+.hide{display:none!important}
+.dim{color:var(--dim)}
+.sml{font-size:13px}
+.tiny{font-size:12px}
+label.f{display:block;font-size:12px;color:var(--dim);margin-bottom:5px;text-transform:uppercase;letter-spacing:.05em}
+.lang{display:flex;gap:0;border:1px solid var(--line);border-radius:999px;overflow:hidden}
+.lang button{border:none;border-radius:0;padding:6px 13px;font-size:13px;background:transparent}
+.lang button.on{background:var(--acc);color:#fff;font-weight:600}
+.stage{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:26px 18px;min-height:230px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;cursor:pointer}
+.plang{font-size:12px;color:var(--dim);text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px}
+.prompt{font-size:30px;font-weight:600;line-height:1.25;word-break:break-word}
+.answer{font-size:25px;color:var(--ok);margin-top:18px;padding-top:16px;border-top:1px solid var(--line);width:100%;line-height:1.3}
+.note{font-size:14px;color:var(--dim);margin-top:12px;font-style:italic}
+.tap{font-size:13px;color:var(--dim);margin-top:22px}
+.bar{height:6px;background:var(--panel2);border-radius:99px;overflow:hidden;margin:12px 0}
+.bar>i{display:block;height:100%;background:var(--acc);transition:.25s}
+.acts3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-top:12px}
+.acts3 button{padding:15px 6px;font-weight:600;line-height:1.25}
+.b-hard{background:#3a2028;border-color:#5e3040;color:#ffb0c4}
+.b-med{background:#3a2f18;border-color:#5f4a1f;color:#f7cf87}
+.b-easy{background:#153525;border-color:#22593c;color:#8bf0b4}
+.b-know{background:#1a2c44;border-color:#2b4a70;color:#a8cdf7;width:100%;margin-top:9px;padding:13px;font-weight:600}
+.wsearch{position:sticky;top:0;background:var(--bg);padding:8px 0;z-index:5}
+.wlist{border:1px solid var(--line);border-radius:var(--rad);overflow:hidden}
+.wrow{display:flex;gap:10px;align-items:flex-start;padding:9px 11px;border-bottom:1px solid var(--line);font-size:14px}
+.wrow:last-child{border-bottom:none}
+.wrow:nth-child(even){background:rgba(255,255,255,.018)}
+.wrow input{width:18px;height:18px;flex:none;margin-top:3px;accent-color:var(--acc)}
+.wtx{flex:1;min-width:0}
+.wtx .e{color:var(--dim)}
+.st{font-size:10px;padding:2px 7px;border-radius:99px;flex:none;text-transform:uppercase;letter-spacing:.05em;margin-top:3px;white-space:nowrap}
+.st-new{background:#252d38;color:#94a3b8}
+.st-learning{background:#4a2b18;color:#fdba74}
+.st-good{background:#173626;color:#6ee7a7}
+.st-known{background:#1e3a5f;color:#93c5fd}
+.st-skip{background:#333;color:#999}
+.bulk{position:sticky;bottom:0;background:var(--panel);border:1px solid var(--acc);border-radius:var(--rad);padding:11px;margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.stat{background:var(--panel2);border:1px solid var(--line);border-radius:var(--rad);padding:13px}
+.stat b{display:block;font-size:26px;line-height:1.1}
+.stat span{font-size:12px;color:var(--dim)}
+@media(max-width:520px){.prompt{font-size:25px}.answer{font-size:21px}.wrap{padding:10px 10px 90px}.acts3 button{font-size:14px;padding:13px 4px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<div id="v-login">
+  <div class="row" style="justify-content:flex-end;padding-top:8px">
+    <div class="lang"><button id="lg-en" onclick="setLang('en')">English</button><button id="lg-fi" onclick="setLang('fi')">Suomi</button></div>
+  </div>
+  <div style="text-align:center;padding:26px 0 18px">
+    <div style="font-size:44px">🇫🇮</div>
+    <h1 style="margin-top:10px">Sanasto</h1>
+    <p class="dim sml" id="loginSub"></p>
+  </div>
+  <div class="card">
+    <label class="f" data-i18n="username"></label>
+    <input id="uname" autocomplete="off" autocapitalize="none" spellcheck="false" data-ph="unamePh">
+    <p class="dim tiny" style="margin:9px 0 13px" data-i18n="loginHelp"></p>
+    <button class="pri" style="width:100%" onclick="login()" data-i18n="start"></button>
+  </div>
+  <div id="knownusers" class="sml dim"></div>
+</div>
+
+<div id="v-app" class="hide">
+  <div class="hdr">
+    <h1>Sanasto</h1>
+    <div style="flex:1"></div>
+    <div class="lang"><button id="lg2-en" onclick="setLang('en')">EN</button><button id="lg2-fi" onclick="setLang('fi')">FI</button></div>
+    <div class="who">👤 <b id="whoName"></b></div>
+    <button class="sm gh" onclick="logout()" data-i18n="switchUser"></button>
+  </div>
+
+  <div class="nav">
+    <button id="t-study" class="on" onclick="tab('study')" data-i18n="navStudy"></button>
+    <button id="t-words" onclick="tab('words')" data-i18n="navWords"></button>
+    <button id="t-stats" onclick="tab('stats')" data-i18n="navStats"></button>
+  </div>
+
+  <div id="p-setup">
+    <div class="card">
+      <label class="f" data-i18n="direction"></label>
+      <div class="row" id="dirRow">
+        <div class="chip" data-dir="en-fi" data-i18n="dirEnFi"></div>
+        <div class="chip" data-dir="fi-en" data-i18n="dirFiEn"></div>
+        <div class="chip" data-dir="mix" data-i18n="dirMix"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <label class="f" data-i18n="source"></label>
+      <div class="row" id="srcRow">
+        <div class="chip" data-src="cat" data-i18n="srcCat"></div>
+        <div class="chip" data-src="set" data-i18n="srcSet"></div>
+        <div class="chip" data-src="all" data-i18n="srcAll"></div>
+      </div>
+      <div id="catBox" style="margin-top:14px">
+        <label class="f" data-i18n="pickCats"></label>
+        <div class="row" id="catChips"></div>
+        <label class="f" style="margin-top:14px" data-i18n="type"></label>
+        <div class="row" id="typeChips"></div>
+      </div>
+      <div id="setBox" class="hide" style="margin-top:14px">
+        <label class="f" data-i18n="mySets"></label>
+        <div id="setChips" class="row"></div>
+        <p class="dim tiny" style="margin-top:8px" data-i18n="setHelp"></p>
+      </div>
+    </div>
+
+    <div class="card">
+      <label class="f" data-i18n="include"></label>
+      <div class="row" id="statusChips">
+        <div class="chip on" data-st="new"><span data-i18n="stNew"></span> <span class="ct" id="c-new"></span></div>
+        <div class="chip on" data-st="learning"><span data-i18n="stLearning"></span> <span class="ct" id="c-learning"></span></div>
+        <div class="chip on" data-st="good"><span data-i18n="stGood"></span> <span class="ct" id="c-good"></span></div>
+        <div class="chip" data-st="known"><span data-i18n="stKnown"></span> <span class="ct" id="c-known"></span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="grid">
+        <div>
+          <label class="f" data-i18n="batchSize"></label>
+          <select id="batchSize"><option>5</option><option>10</option><option selected>15</option><option>20</option><option>30</option><option>50</option></select>
+        </div>
+        <div>
+          <label class="f" data-i18n="order"></label>
+          <select id="order">
+            <option value="seq" data-i18n="ordSeq"></option>
+            <option value="rand" data-i18n="ordRand"></option>
+            <option value="weak" data-i18n="ordWeak"></option>
+          </select>
+        </div>
+      </div>
+      <p class="dim sml" id="poolInfo" style="margin:14px 0 0"></p>
+      <div class="row" style="margin-top:12px">
+        <button class="pri" style="flex:1" onclick="startRound(false)" data-i18n="startBatch"></button>
+        <button class="sm gh" onclick="resetPos()" data-i18n="resetPos"></button>
+      </div>
+    </div>
+  </div>
+
+  <div id="p-card" class="hide">
+    <div class="row sml dim">
+      <span id="roundLbl"></span><div style="flex:1"></div>
+      <button class="sm gh" onclick="quitRound()" data-i18n="quit"></button>
+    </div>
+    <div class="bar"><i id="roundBar" style="width:0%"></i></div>
+    <div class="stage" id="stage" onclick="reveal()">
+      <div class="plang" id="pLang"></div>
+      <div class="prompt" id="pTx"></div>
+      <div id="aWrap" class="hide">
+        <div class="answer" id="aTx"></div>
+        <div class="note" id="nTx"></div>
+      </div>
+      <div class="tap" id="tapHint"></div>
+    </div>
+    <div id="actWrap" class="hide">
+      <div class="acts3">
+        <button class="b-hard" onclick="grade('hard')"><span data-i18n="gHard"></span><br><span class="tiny" style="font-weight:400" data-i18n="gHardSub"></span></button>
+        <button class="b-med"  onclick="grade('medium')"><span data-i18n="gMed"></span><br><span class="tiny" style="font-weight:400" data-i18n="gMedSub"></span></button>
+        <button class="b-easy" onclick="grade('easy')"><span data-i18n="gEasy"></span><br><span class="tiny" style="font-weight:400" data-i18n="gEasySub"></span></button>
+      </div>
+      <button class="b-know" onclick="grade('known')"><span data-i18n="gKnow"></span> <span class="tiny" style="font-weight:400" data-i18n="gKnowSub"></span></button>
+    </div>
+  </div>
+
+  <div id="p-done" class="hide">
+    <div class="card" style="text-align:center">
+      <div style="font-size:40px">🎉</div>
+      <h1 style="margin:10px 0" data-i18n="batchDone"></h1>
+      <p class="dim" id="doneTx"></p>
+      <div class="row" style="margin-top:16px">
+        <button style="flex:1" onclick="startRound('repeat')" data-i18n="sameAgain"></button>
+        <button class="pri" style="flex:1" onclick="startRound(false)" data-i18n="nextBatch"></button>
+      </div>
+      <button class="gh sm" style="margin-top:10px" onclick="show('setup')" data-i18n="backSetup"></button>
+    </div>
+  </div>
+
+  <div id="p-words" class="hide">
+    <div class="wsearch">
+      <input id="q" oninput="renderWords()" data-ph="searchPh">
+      <div class="row" style="margin-top:8px">
+        <select id="fCat" onchange="renderWords()" style="flex:1;min-width:130px"></select>
+        <select id="fSt" onchange="renderWords()" style="flex:1;min-width:130px"></select>
+      </div>
+      <div class="row tiny" style="margin-top:8px">
+        <span class="dim" id="wCount"></span><div style="flex:1"></div>
+        <button class="sm gh" onclick="selPage(true)" data-i18n="selVisible"></button>
+        <button class="sm gh" onclick="selPage(false)" data-i18n="clearSel"></button>
+      </div>
+    </div>
+    <div class="wlist" id="wlist"></div>
+    <div style="text-align:center;margin-top:10px"><button class="gh sm" id="moreBtn" onclick="wLimit+=300;renderWords(true)" data-i18n="showMore"></button></div>
+    <div id="bulk" class="bulk hide"></div>
+    <h2 data-i18n="mySets"></h2>
+    <div id="setList" class="card sml"></div>
+  </div>
+
+  <div id="p-stats" class="hide">
+    <div class="grid" id="statGrid"></div>
+    <h2 data-i18n="byCategory"></h2>
+    <div class="card sml" id="catStats"></div>
+    <h2 data-i18n="bookmark"></h2>
+    <div class="card sml">
+      <p class="dim" data-i18n="bookmarkHelp"></p>
+      <input id="mylink" readonly onclick="this.select()" style="font-size:13px">
+      <button class="sm" style="margin-top:9px" onclick="copyLink()" data-i18n="copy"></button>
+    </div>
+    <h2 data-i18n="backup"></h2>
+    <div class="card sml">
+      <p class="dim" data-i18n="backupHelp"></p>
+      <div class="row">
+        <button onclick="doExport()" data-i18n="export"></button>
+        <button onclick="document.getElementById('impf').click()" data-i18n="import"></button>
+        <input type="file" id="impf" accept=".json" class="hide" onchange="doImport(this)">
+      </div>
+      <p class="dim tiny" style="margin-top:12px"><span data-i18n="resetAllFor"></span> <b id="rname"></b>
+        <button class="sm gh" onclick="wipe()" data-i18n="resetAll"></button></p>
+    </div>
+  </div>
+</div>
+</div>
+
+<script src="vocab.js"></script>
+<script>
+var TXT={
+en:{sub:"Finnish flashcards · %n words",username:"Username",unamePh:"your name",
+ loginHelp:"No password. Progress is saved in this browser under this name. Anyone else types their own name and gets a clean slate.",
+ start:"Start",saved:"Saved:",switchUser:"Switch",
+ navStudy:"Study",navWords:"Words",navStats:"Stats",
+ direction:"Direction",dirEnFi:"English → Finnish",dirFiEn:"Finnish → English",dirMix:"Mixed",
+ source:"Source",srcCat:"Category",srcSet:"My list",srcAll:"Everything",
+ pickCats:"Categories — pick one or more",type:"Type",mySets:"My lists",
+ setHelp:"Build a list on the Words tab: search, tick the words you want, then Save as list.",
+ include:"Include",stNew:"New",stLearning:"Learning",stGood:"Going well",stKnown:"I know these",stSkip:"Skipped",
+ batchSize:"Batch size",order:"Order",ordSeq:"Continue in order",ordRand:"Random",ordWeak:"Weakest first",
+ startBatch:"Start batch",resetPos:"↺ Start over",quit:"Quit",
+ poolInfo:"<b>%c</b> words selected · batch <b>%b</b> of %t",poolFrom:" · resumes at word %p",
+ poolEmpty:"Nothing matches these settings.",
+ tapHint:"Tap to reveal · <b>space</b>",
+ left:"%l left of %t",
+ gHard:"Hard",gHardSub:"comes back soon · 1",gMed:"Medium",gMedSub:"comes back later · 2",
+ gEasy:"Easy",gEasySub:"done for now · 3",gKnow:"I know this",gKnowSub:"never show it again · 4",
+ batchDone:"Batch done",doneTx:"%n cards · <b>%e</b> easy · <b>%h</b> to work on",
+ sameAgain:"↻ Same batch again",nextBatch:"Next batch →",backSetup:"Back to setup",
+ searchPh:"Search — Finnish or English…",allCats:"All categories",allStatus:"All statuses",
+ selVisible:"Select visible",clearSel:"Clear",showMore:"Show more",
+ words:"%n words",showingOf:" (showing %s)",noMatches:"No matches.",
+ nSelected:"%n selected",toNew:"↺ Reset",toLearning:"To learning",saveAsList:"＋ Save as list",
+ setName:"Name for this list:",listSaved:"Saved: %n (%c words). Pick it under My list on the Study tab.",
+ noSets:"No lists yet. Tick some words above and press Save as list.",
+ practice:"Practice",del:"Delete",delSet:"Delete this list?",
+ total:"Total",cardsSeen:"Cards seen",hitRate:"Hit rate",byCategory:"By category",
+ backup:"Backup",backupHelp:"Progress lives in this browser. Export a file to move it to another computer or phone.",
+ export:"⬇ Export",import:"⬆ Import",resetAllFor:"Reset everything for",resetAll:"Reset",
+ confirmWipe:"Reset ALL progress for %u?",confirmImport:"Replace %u's progress from this file?",
+ imported:"Imported.",importFail:"Import failed: %e",noWords:"Nothing matches these settings.",
+ bookmark:"Your bookmark link",
+ bookmarkHelp:"Bookmark this and it opens straight into your words \u2014 no name screen.",
+ copy:"Copy link",copied:"Copied.",
+ newProfile:"New profile for %u \u2014 nothing saved under that name yet.",
+ syncChecking:"Checking your saved progress\u2026",syncOn:"Progress restored from your account.",
+ syncSaved:"Saved",syncOff:"No connection \u2014 saved on this device only."},
+fi:{sub:"Suomen sanakortit · %n sanaa",username:"Käyttäjänimi",unamePh:"nimesi",
+ loginHelp:"Ei salasanaa. Edistyminen tallentuu tähän selaimeen tällä nimellä. Joku muu kirjoittaa oman nimensä ja aloittaa puhtaalta pöydältä.",
+ start:"Aloita",saved:"Tallennetut:",switchUser:"Vaihda",
+ navStudy:"Harjoittele",navWords:"Sanat",navStats:"Tilastot",
+ direction:"Suunta",dirEnFi:"Englanti → suomi",dirFiEn:"Suomi → englanti",dirMix:"Sekaisin",
+ source:"Mistä",srcCat:"Kategoria",srcSet:"Oma lista",srcAll:"Kaikki",
+ pickCats:"Kategoriat — valitse yksi tai useampi",type:"Tyyppi",mySets:"Omat listat",
+ setHelp:"Tee lista Sanat-välilehdellä: hae, rastita haluamasi sanat ja paina Tallenna listaksi.",
+ include:"Mukaan otetaan",stNew:"Uudet",stLearning:"Harjoittelussa",stGood:"Menee hyvin",stKnown:"Osaan jo",stSkip:"Ohitetut",
+ batchSize:"Erän koko",order:"Järjestys",ordSeq:"Jatka järjestyksessä",ordRand:"Satunnainen",ordWeak:"Heikoimmat ensin",
+ startBatch:"Aloita erä",resetPos:"↺ Alusta",quit:"Lopeta",
+ poolInfo:"<b>%c</b> sanaa valittuna · erä <b>%b</b>/%t",poolFrom:" · jatkuu sanasta %p",
+ poolEmpty:"Ei sanoja näillä valinnoilla.",
+ tapHint:"Napauta nähdäksesi · <b>väli</b>",
+ left:"Jäljellä %l / %t",
+ gHard:"Vaikea",gHardSub:"tulee pian takaisin · 1",gMed:"Keskitaso",gMedSub:"tulee myöhemmin · 2",
+ gEasy:"Helppo",gEasySub:"pois tästä erästä · 3",gKnow:"Osaan tämän",gKnowSub:"älä näytä enää koskaan · 4",
+ batchDone:"Erä valmis",doneTx:"%n korttia · <b>%e</b> helppoa · <b>%h</b> harjoiteltavaa",
+ sameAgain:"↻ Sama erä uudestaan",nextBatch:"Seuraava erä →",backSetup:"Takaisin asetuksiin",
+ searchPh:"Hae — suomeksi tai englanniksi…",allCats:"Kaikki kategoriat",allStatus:"Kaikki tilat",
+ selVisible:"Valitse näkyvät",clearSel:"Tyhjennä",showMore:"Näytä lisää",
+ words:"%n sanaa",showingOf:" (näytetään %s)",noMatches:"Ei osumia.",
+ nSelected:"%n valittu",toNew:"↺ Uudeksi",toLearning:"Harjoitteluun",saveAsList:"＋ Tallenna listaksi",
+ setName:"Listan nimi:",listSaved:"Tallennettu: %n (%c sanaa). Valitse se Harjoittele-välilehdeltä kohdasta Oma lista.",
+ noSets:"Ei vielä listoja. Rastita sanoja yltä ja paina Tallenna listaksi.",
+ practice:"Harjoittele",del:"Poista",delSet:"Poistetaanko lista?",
+ total:"Yhteensä",cardsSeen:"Kortteja katsottu",hitRate:"Osumaprosentti",byCategory:"Kategorioittain",
+ backup:"Varmuuskopio",backupHelp:"Edistyminen on tässä selaimessa. Vie tiedosto, jos siirrät sen toiseen koneeseen tai puhelimeen.",
+ export:"⬇ Vie tiedostoon",import:"⬆ Tuo tiedostosta",resetAllFor:"Nollaa kaikki käyttäjältä",resetAll:"Nollaa",
+ confirmWipe:"Nollataanko KAIKKI edistyminen käyttäjältä %u?",confirmImport:"Korvataanko käyttäjän %u edistyminen tästä tiedostosta?",
+ imported:"Tuotu.",importFail:"Tuonti epäonnistui: %e",noWords:"Ei sanoja näillä valinnoilla.",
+ bookmark:"Oma kirjanmerkkilinkki",
+ bookmarkHelp:"Lis\u00e4\u00e4 t\u00e4m\u00e4 kirjanmerkkeihin, niin p\u00e4\u00e4set suoraan sanoihin ilman nimikysely\u00e4.",
+ copy:"Kopioi linkki",copied:"Kopioitu.",
+ newProfile:"Uusi profiili nimelle %u \u2014 t\u00e4ll\u00e4 nimell\u00e4 ei ole viel\u00e4 tallennettua edistymist\u00e4.",
+ syncChecking:"Tarkistetaan tallennettua edistymist\u00e4\u2026",syncOn:"Edistyminen haettu tililt\u00e4si.",
+ syncSaved:"Tallennettu",syncOff:"Ei yhteytt\u00e4 \u2014 tallennettu vain t\u00e4lle laitteelle."}};
+
+var KEY='sanasto:v2:',LAST='sanasto:last',LKEY='sanasto:lang',user='',P=null,LANG='en';
+var V=window.VOCAB,CATS=window.CATS,TYPES=window.TYPES;
+var BY={};V.forEach(function(w){BY[w.id]=w;});
+var ORDER={};V.forEach(function(w,i){ORDER[w.id]=i;});
+var STATUSES=['new','learning','good','known'];
+
+function t(k,vars){var s=(TXT[LANG]&&TXT[LANG][k])||TXT.en[k]||k;
+  if(vars)Object.keys(vars).forEach(function(v){s=s.split('%'+v).join(vars[v]);});return s;}
+function num(n){return LANG==='fi'?String(n).replace(/\B(?=(\d{3})+(?!\d))/g,' ')
+                                 :String(n).replace(/\B(?=(\d{3})+(?!\d))/g,',');}
+function catName(k){return (CATS[k][LANG]||CATS[k].en)[0];}
+function catDesc(k){return (CATS[k][LANG]||CATS[k].en)[1];}
+function typeName(k){return (TYPES[k][LANG]||TYPES[k].en)[0];}
+function stName(s){return t({'new':'stNew',learning:'stLearning',good:'stGood',known:'stKnown',skip:'stSkip'}[s]||'stNew');}
+
+function isWeb(){return location.protocol==='http:'||location.protocol==='https:';}
+function urlUser(){
+  try{
+    var m=/[?&]u=([^&]+)/.exec(location.search);
+    if(m)return decodeURIComponent(m[1].replace(/\+/g,' ')).trim();
+    var h=location.hash.replace(/^#\/?/,'');
+    if(h)return decodeURIComponent(h).trim();
+    if(isWeb()){
+      var seg=location.pathname.replace(/^\/+|\/+$/g,'');
+      if(seg&&seg.indexOf('/')<0&&seg.indexOf('.')<0)return decodeURIComponent(seg).trim();
+    }
+  }catch(e){}
+  return '';
+}
+function myLink(){
+  if(!user)return '';
+  return isWeb()? location.origin+'/'+encodeURIComponent(user)
+                : location.href.split('#')[0]+'#'+encodeURIComponent(user);
+}
+function setUrl(){try{history.replaceState(null,'',
+  isWeb()?'/'+encodeURIComponent(user):location.pathname+'#'+encodeURIComponent(user));}catch(e){}}
+function clearUrl(){try{history.replaceState(null,'',isWeb()?'/':location.pathname);}catch(e){}}
+
+function blank(){return{status:{},stat:{},sets:[],pos:{},prefs:{dir:'en-fi',src:'cat',cats:['AIRX'],
+  types:[],set:null,inc:['new','learning','good'],batch:'15',order:'seq'}};}
+function save(){P.updated=Date.now();
+  try{localStorage.setItem(KEY+user.toLowerCase(),JSON.stringify(P));}catch(e){alert(e.message);}
+  queuePush();}
+
+/* ---------- server sync ----------------------------------------------------
+   localStorage alone loses everything when the site URL changes, when the
+   browser is cleared, or when you pick up a different device. The profile now
+   also lives in a Netlify Blobs store behind /.netlify/functions/progress,
+   keyed on the lowercased name. localStorage stays as the offline copy, so the
+   app still works with no connection and off the disk.                     */
+var API='/.netlify/functions/progress';
+var SYNC=isWeb(),pushT=null,pushing=false,pushAgain=false;
+function pill(){var e=document.getElementById('syncPill');
+  if(!e){e=document.createElement('div');e.id='syncPill';
+    e.style.cssText='position:fixed;left:50%;transform:translateX(-50%);bottom:14px;z-index:999;'+
+      'padding:6px 14px;border-radius:999px;font-size:12px;background:#1b2230;color:#9fb4d0;'+
+      'border:1px solid #33415a;opacity:0;transition:opacity .3s;pointer-events:none;max-width:88vw';
+    document.body.appendChild(e);}
+  return e;}
+function say(k,hold){var e=pill();e.textContent=t(k);e.style.opacity='1';
+  clearTimeout(e._t);if(!hold)e._t=setTimeout(function(){e.style.opacity='0';},1800);}
+function rnk(x){return {'new':0,learning:1,good:2,known:3}[x]||0;}
+function merge(older,newer){
+  var out=JSON.parse(JSON.stringify(newer||{})),o=older||{};
+  out.status=out.status||{};out.stat=out.stat||{};out.sets=out.sets||[];out.pos=out.pos||{};
+  Object.keys(o.status||{}).forEach(function(id){var v=o.status[id];
+    if(!out.status[id]||rnk(v)>rnk(out.status[id]))out.status[id]=v;});
+  Object.keys(o.stat||{}).forEach(function(id){var a=o.stat[id],b=out.stat[id];
+    if(!b||(a.a||0)>(b.a||0))out.stat[id]=a;});
+  var have={};out.sets.forEach(function(x){have[x.id]=1;});
+  (o.sets||[]).forEach(function(x){if(!have[x.id])out.sets.push(x);});
+  return out;}
+function repaintAfterSync(){
+  try{buildChips();applyPrefs();
+    if(!document.getElementById('p-words').classList.contains('hide')){renderWords();renderSets();}
+    if(!document.getElementById('p-stats').classList.contains('hide'))renderStats();
+  }catch(e){}}
+function pullRemote(){
+  if(!SYNC||!user)return;
+  var who=user;say('syncChecking',true);
+  fetch(API+'?u='+encodeURIComponent(who.toLowerCase()),{cache:'no-store'})
+    .then(function(r){if(!r.ok)throw new Error(r.status);return r.json();})
+    .then(function(d){
+      if(user!==who||(R&&R.cur)){say('syncSaved');return;}
+      var rem=d&&d.profile;
+      if(rem&&typeof rem==='object'){
+        var lu=(P&&P.updated)||0,ru=rem.updated||0;
+        var m=ru>=lu?merge(P,rem):merge(rem,P);
+        m.prefs=Object.assign(blank().prefs,(ru>=lu?rem.prefs:P.prefs)||{});
+        P=Object.assign(blank(),m);
+        try{localStorage.setItem(KEY+who.toLowerCase(),JSON.stringify(P));}catch(e){}
+        repaintAfterSync();say('syncOn');
+      }else{say('syncSaved');}
+      pushRemote();
+    })
+    .catch(function(){if(user===who)say('syncOff');});}
+function queuePush(){if(!SYNC||!user)return;clearTimeout(pushT);pushT=setTimeout(pushRemote,1200);}
+function pushRemote(){
+  if(!SYNC||!user||!P)return;
+  if(pushing){pushAgain=true;return;}
+  pushing=true;var who=user,body=JSON.stringify({profile:P});
+  fetch(API+'?u='+encodeURIComponent(who.toLowerCase()),
+        {method:'PUT',headers:{'content-type':'application/json'},body:body})
+    .then(function(r){if(!r.ok)throw new Error(r.status);return r.json();})
+    .then(function(){pushing=false;say('syncSaved');
+      if(pushAgain){pushAgain=false;pushRemote();}})
+    .catch(function(){pushing=false;pushAgain=false;say('syncOff');});}
+function flushPush(){
+  if(!SYNC||!user||!P||!navigator.sendBeacon)return;
+  try{navigator.sendBeacon(API+'?u='+encodeURIComponent(user.toLowerCase()),
+      new Blob([JSON.stringify({profile:P})],{type:'application/json'}));}catch(e){}}
+document.addEventListener('visibilitychange',function(){
+  if(document.visibilityState==='hidden')flushPush();});
+window.addEventListener('pagehide',flushPush);
+function stOf(id){return P.status[id]||(BY[id]&&BY[id].k?'known':'new');}
+function stat(id){return P.stat[id]||(P.stat[id]={s:0,r:0,a:0,k:0,d:''});}
+
+function setLang(l){
+  LANG=l; try{localStorage.setItem(LKEY,l);}catch(e){}
+  document.documentElement.lang=l;
+  ['lg-en','lg-fi','lg2-en','lg2-fi'].forEach(function(id){
+    var e=document.getElementById(id); e.classList.toggle('on',id.slice(-2)===l);});
+  document.querySelectorAll('[data-i18n]').forEach(function(e){e.innerHTML=t(e.dataset.i18n);});
+  document.querySelectorAll('[data-ph]').forEach(function(e){e.placeholder=t(e.dataset.ph);});
+  document.getElementById('loginSub').innerHTML=t('sub',{n:num(V.length)});
+  document.getElementById('tapHint').innerHTML=t('tapHint');
+  listUsers();
+  if(P){buildChips();applyPrefs();
+    if(!document.getElementById('p-words').classList.contains('hide')){renderWords();renderSets();}
+    if(!document.getElementById('p-stats').classList.contains('hide'))renderStats();
+    if(R&&R.cur&&!document.getElementById('p-card').classList.contains('hide'))paint();}
+}
+
+function knownUsers(){var o=[];for(var i=0;i<localStorage.length;i++){var k=localStorage.key(i);
+  if(k.indexOf(KEY)===0)o.push(k.slice(KEY.length));}return o;}
+function listUsers(){var u=knownUsers(),el=document.getElementById('knownusers');
+  el.innerHTML=u.length?t('saved')+' '+u.map(function(x){return '<a href="#" onclick="document.getElementById(\'uname\').value=\''+x+'\';login();return false" style="color:#7dabf5">'+x+'</a>';}).join(' · '):'';}
+function login(){var n=document.getElementById('uname').value.trim();
+  if(!n){document.getElementById('uname').focus();return;}
+  user=n;var raw=localStorage.getItem(KEY+n.toLowerCase());
+  P=Object.assign(blank(),raw?JSON.parse(raw):{});
+  P.prefs=Object.assign(blank().prefs,P.prefs||{});
+  P.status=P.status||{};P.stat=P.stat||{};P.sets=P.sets||[];P.pos=P.pos||{};
+  P.prefs.inc=P.prefs.inc.filter(function(s){return STATUSES.indexOf(s)>=0;});
+  if(!P.prefs.inc.length)P.prefs.inc=['new','learning','good'];
+  localStorage.setItem(LAST,n);save();setUrl();boot();pullRemote();}
+function logout(){flushPush();user='';P=null;R=null;localStorage.removeItem(LAST);clearUrl();
+  document.getElementById('v-app').classList.add('hide');
+  document.getElementById('v-login').classList.remove('hide');listUsers();}
+
+function boot(){
+  document.getElementById('v-login').classList.add('hide');
+  document.getElementById('v-app').classList.remove('hide');
+  document.getElementById('whoName').textContent=user;
+  document.getElementById('rname').textContent=user;
+  buildChips();applyPrefs();tab('study');show('setup');}
+
+function buildChips(){
+  document.getElementById('catChips').innerHTML=Object.keys(CATS).map(function(k){
+    return '<div class="chip" data-cat="'+k+'">'+catName(k)+' <span class="ct">'+num(V.filter(function(w){return w.c.indexOf(k)>=0;}).length)+'</span></div>';}).join('');
+  document.getElementById('typeChips').innerHTML=Object.keys(TYPES).map(function(k){
+    return '<div class="chip" data-type="'+k+'">'+typeName(k)+' <span class="ct">'+num(V.filter(function(w){return w.t===k;}).length)+'</span></div>';}).join('');
+  document.getElementById('fCat').innerHTML='<option value="">'+t('allCats')+'</option>'+
+    Object.keys(CATS).map(function(k){return '<option value="'+k+'">'+catName(k)+'</option>';}).join('');
+  document.getElementById('fSt').innerHTML='<option value="">'+t('allStatus')+'</option>'+
+    STATUSES.map(function(s){return '<option value="'+s+'">'+stName(s)+'</option>';}).join('');
+  bind('#dirRow .chip','dir',true);bind('#srcRow .chip','src',true);
+  bind('#catChips .chip','cat',false);bind('#typeChips .chip','type',false);
+  bind('#statusChips .chip','st',false);
+  document.getElementById('batchSize').onchange=function(){P.prefs.batch=this.value;save();poolInfo();};
+  document.getElementById('order').onchange=function(){P.prefs.order=this.value;save();poolInfo();};
+}
+function bind(sel,attr,single){
+  document.querySelectorAll(sel).forEach(function(c){c.onclick=function(){
+    if(single){document.querySelectorAll(sel).forEach(function(x){x.classList.remove('on');});c.classList.add('on');
+      if(attr==='dir')P.prefs.dir=c.dataset.dir;
+      if(attr==='src'){P.prefs.src=c.dataset.src;srcBox();}
+    }else{c.classList.toggle('on');
+      var on=[].map.call(document.querySelectorAll(sel+'.on'),function(x){return x.dataset[attr];});
+      if(attr==='cat')P.prefs.cats=on; if(attr==='type')P.prefs.types=on; if(attr==='st')P.prefs.inc=on;}
+    save();poolInfo();};});
+}
+function applyPrefs(){var p=P.prefs;
+  document.querySelectorAll('#dirRow .chip').forEach(function(c){c.classList.toggle('on',c.dataset.dir===p.dir);});
+  document.querySelectorAll('#srcRow .chip').forEach(function(c){c.classList.toggle('on',c.dataset.src===p.src);});
+  document.querySelectorAll('#catChips .chip').forEach(function(c){c.classList.toggle('on',p.cats.indexOf(c.dataset.cat)>=0);});
+  document.querySelectorAll('#typeChips .chip').forEach(function(c){c.classList.toggle('on',p.types.indexOf(c.dataset.type)>=0);});
+  document.querySelectorAll('#statusChips .chip').forEach(function(c){c.classList.toggle('on',p.inc.indexOf(c.dataset.st)>=0);});
+  document.getElementById('batchSize').value=p.batch;document.getElementById('order').value=p.order;
+  srcBox();renderSets();poolInfo();}
+function srcBox(){var s=P.prefs.src;
+  document.getElementById('catBox').classList.toggle('hide',s!=='cat');
+  document.getElementById('setBox').classList.toggle('hide',s!=='set');}
+
+function poolKey(){var p=P.prefs;
+  return p.src+'|'+(p.src==='cat'?p.cats.slice().sort().join(',')+'/'+p.types.slice().sort().join(','):p.src==='set'?String(p.set):'')+'|'+p.inc.slice().sort().join(',');}
+function pool(){var p=P.prefs,list;
+  if(p.src==='set'){var s=P.sets.filter(function(x){return x.id===p.set;})[0];
+    list=s?s.ids.map(function(i){return BY[i];}).filter(Boolean):[];}
+  else if(p.src==='cat'){list=V.filter(function(w){
+    if(p.cats.length&&!p.cats.some(function(c){return w.c.indexOf(c)>=0;}))return false;
+    if(p.types.length&&p.types.indexOf(w.t)<0)return false;return true;});}
+  else list=V.slice();
+  list=list.filter(function(w){return p.inc.indexOf(stOf(w.id))>=0;});
+  if(p.order==='rand')list=shuffle(list.slice());
+  else if(p.order==='weak')list=list.slice().sort(function(a,b){
+    var A=P.stat[a.id]||{s:0,r:0,a:0},B=P.stat[b.id]||{s:0,r:0,a:0};
+    return ((A.r-A.a*2)-(A.s?0:.5))-((B.r-B.a*2)-(B.s?0:.5))||ORDER[a.id]-ORDER[b.id];});
+  return list;}
+function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var x=a[i];a[i]=a[j];a[j]=x;}return a;}
+function poolInfo(){var l=pool(),n=+P.prefs.batch,k=poolKey(),pos=P.pos[k]||0;
+  var tot=Math.max(1,Math.ceil(l.length/n)),cur=Math.min(tot,Math.floor(pos/n)+1);
+  document.getElementById('poolInfo').innerHTML=l.length
+    ? t('poolInfo',{c:num(l.length),b:cur,t:num(tot)})+(P.prefs.order==='seq'?t('poolFrom',{p:num(Math.min(pos,l.length-1)+1)}):'')
+    : '<span style="color:#f59e0b">'+t('poolEmpty')+'</span>';
+  STATUSES.forEach(function(s){document.getElementById('c-'+s).textContent=num(V.filter(function(w){return stOf(w.id)===s;}).length);});}
+function resetPos(){P.pos[poolKey()]=0;save();poolInfo();}
+
+var R=null;
+function startRound(mode){var l=pool();if(!l.length){alert(t('noWords'));return;}
+  var n=+P.prefs.batch,k=poolKey(),batch,rep=false;
+  if(mode==='repeat'&&R&&R.batch.length){batch=R.batch.slice();rep=true;}
+  else{var pos=P.pos[k]||0;if(pos>=l.length)pos=P.pos[k]=0;
+    batch=l.slice(pos,pos+n);
+    if(batch.length<n&&l.length>n)batch=batch.concat(l.slice(0,n-batch.length));save();}
+  R={batch:batch,q:shuffle(batch.slice()),easy:0,hard:0,med:0,key:k,repeat:rep,n:n};
+  show('card');next();}
+function next(){if(!R.q.length){finish();return;}
+  R.cur=R.q[0];
+  var d=P.prefs.dir;R.toFi=(d==='en-fi')||(d==='mix'&&Math.random()<0.5);
+  paint();}
+function paint(){var w=R.cur;
+  document.getElementById('pLang').textContent=R.toFi?t('dirEnFi'):t('dirFiEn');
+  document.getElementById('pTx').textContent=R.toFi?w.en:w.fi;
+  document.getElementById('aTx').textContent=R.toFi?w.fi:w.en;
+  var nt=document.getElementById('nTx');nt.textContent=w.n||'';nt.style.display=w.n?'block':'none';
+  document.getElementById('aWrap').classList.add('hide');
+  document.getElementById('actWrap').classList.add('hide');
+  document.getElementById('tapHint').classList.remove('hide');
+  document.getElementById('tapHint').innerHTML=t('tapHint');
+  var tot=R.batch.length;
+  document.getElementById('roundLbl').textContent=t('left',{l:R.q.length,t:tot})+'  ·  ✓ '+R.easy;
+  document.getElementById('roundBar').style.width=(100*(tot-R.q.length)/tot)+'%';}
+function reveal(){if(!R||!R.cur)return;
+  document.getElementById('aWrap').classList.remove('hide');
+  document.getElementById('actWrap').classList.remove('hide');
+  document.getElementById('tapHint').classList.add('hide');}
+function grade(g){if(!R||!R.cur)return;
+  if(document.getElementById('aWrap').classList.contains('hide')){reveal();return;}
+  var w=R.cur,s=stat(w.id);s.s++;s.d=new Date().toISOString().slice(0,10);
+  R.q.shift();
+  if(g==='hard'){s.a++;s.k=0;P.status[w.id]='learning';R.hard++;
+    R.q.splice(Math.min(2,R.q.length),0,w);}
+  else if(g==='medium'){s.k=0;P.status[w.id]='learning';R.med++;R.q.push(w);}
+  else if(g==='easy'){s.r++;s.k=(s.k||0)+1;R.easy++;P.status[w.id]=s.k>=3?'good':'learning';}
+  else if(g==='known'){s.r++;s.k=(s.k||0)+1;R.easy++;P.status[w.id]='known';}
+  save();next();}
+function finish(){
+  if(R&&!R.repeat){var l=pool(),n=R.n,span=Math.max(n,Math.ceil(Math.max(l.length,1)/n)*n);
+    P.pos[R.key]=((P.pos[R.key]||0)+n)%span;save();}
+  show('done');
+  document.getElementById('doneTx').innerHTML=t('doneTx',{n:R.batch.length,e:R.easy,h:R.hard+R.med});
+  poolInfo();}
+function quitRound(){show('setup');poolInfo();}
+document.addEventListener('keydown',function(e){
+  if(document.getElementById('p-card').classList.contains('hide'))return;
+  if(e.target.tagName==='INPUT')return;
+  if(e.key===' '||e.key==='Enter'){e.preventDefault();
+    document.getElementById('aWrap').classList.contains('hide')?reveal():grade('easy');return;}
+  if(e.key==='1')grade('hard');if(e.key==='2')grade('medium');
+  if(e.key==='3')grade('easy');if(e.key==='4')grade('known');});
+
+function show(p){['setup','card','done'].forEach(function(x){document.getElementById('p-'+x).classList.toggle('hide',x!==p);});}
+function tab(x){['study','words','stats'].forEach(function(y){document.getElementById('t-'+y).classList.toggle('on',y===x);});
+  document.getElementById('p-words').classList.add('hide');
+  document.getElementById('p-stats').classList.add('hide');
+  ['setup','card','done'].forEach(function(y){document.getElementById('p-'+y).classList.add('hide');});
+  if(x==='study'){show(R&&R.q&&R.q.length?'card':'setup');poolInfo();}
+  if(x==='words'){document.getElementById('p-words').classList.remove('hide');renderWords();renderSets();}
+  if(x==='stats'){document.getElementById('p-stats').classList.remove('hide');renderStats();}}
+
+var sel={},wLimit=300;
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+function filtered(){var q=document.getElementById('q').value.trim().toLowerCase();
+  var c=document.getElementById('fCat').value,st=document.getElementById('fSt').value;
+  return V.filter(function(w){
+    if(c&&w.c.indexOf(c)<0)return false;
+    if(st&&stOf(w.id)!==st)return false;
+    if(q&&(w.fi+' '+w.en).toLowerCase().indexOf(q)<0)return false;return true;});}
+function renderWords(keep){if(!keep)wLimit=300;
+  var l=filtered();
+  document.getElementById('wlist').innerHTML=l.slice(0,wLimit).map(function(w){
+    var s=stOf(w.id),x=P.stat[w.id];
+    return '<div class="wrow"><input type="checkbox" '+(sel[w.id]?'checked':'')+
+      ' onchange="pick(\''+w.id+'\',this.checked)"><div class="wtx"><b>'+esc(w.fi)+'</b><br><span class="e">'+
+      esc(w.en)+'</span>'+(x&&x.s?'<span class="tiny dim"> · '+x.r+'/'+x.s+'</span>':'')+
+      '</div><span class="st st-'+s+'">'+stName(s)+'</span></div>';}).join('')||'<div class="wrow dim">'+t('noMatches')+'</div>';
+  document.getElementById('wCount').textContent=t('words',{n:num(l.length)})+(l.length>wLimit?t('showingOf',{s:num(wLimit)}):'');
+  document.getElementById('moreBtn').classList.toggle('hide',l.length<=wLimit);
+  bulkBar();}
+function pick(id,on){if(on)sel[id]=1;else delete sel[id];bulkBar();}
+function selPage(on){if(on)filtered().slice(0,wLimit).forEach(function(w){sel[w.id]=1;});else sel={};renderWords(true);}
+function bulkBar(){var n=Object.keys(sel).length,b=document.getElementById('bulk');
+  b.classList.toggle('hide',!n);if(!n)return;
+  b.innerHTML='<b>'+t('nSelected',{n:n})+'</b>'+
+   '<button class="sm" onclick="mark(\'new\')">'+t('toNew')+'</button>'+
+   '<button class="sm" onclick="mark(\'learning\')">'+t('toLearning')+'</button>'+
+   '<button class="sm" onclick="mark(\'known\')">★ '+t('stKnown')+'</button>'+
+   '<button class="sm pri" onclick="saveSet()">'+t('saveAsList')+'</button>';}
+function mark(s){Object.keys(sel).forEach(function(id){P.status[id]=s;});sel={};save();renderWords(true);poolInfo();}
+function saveSet(){var ids=Object.keys(sel);if(!ids.length)return;
+  var nm=prompt(t('setName'),(LANG==='fi'?'Lista ':'List ')+(P.sets.length+1));if(!nm)return;
+  P.sets.push({id:'s'+Date.now(),name:nm,ids:ids});sel={};save();renderWords(true);renderSets();
+  alert(t('listSaved',{n:nm,c:ids.length}));}
+function renderSets(){
+  var el=document.getElementById('setList');
+  if(el)el.innerHTML=P.sets.length?P.sets.map(function(s){
+    return '<div class="row" style="padding:6px 0;border-bottom:1px solid var(--line)"><b>'+esc(s.name)+
+      '</b> <span class="dim">'+num(s.ids.length)+'</span><div style="flex:1"></div>'+
+      '<button class="sm gh" onclick="useSet(\''+s.id+'\')">'+t('practice')+'</button>'+
+      '<button class="sm gh" onclick="delSet(\''+s.id+'\')">'+t('del')+'</button></div>';}).join(''):'<span class="dim">'+t('noSets')+'</span>';
+  var sc=document.getElementById('setChips');
+  sc.innerHTML=P.sets.length?P.sets.map(function(s){
+    return '<div class="chip'+(P.prefs.set===s.id?' on':'')+'" onclick="pickSet(\''+s.id+'\')">'+
+      esc(s.name)+' <span class="ct">'+num(s.ids.length)+'</span></div>';}).join(''):'<span class="dim sml">'+t('noSets')+'</span>';}
+function pickSet(id){P.prefs.set=id;save();renderSets();poolInfo();}
+function useSet(id){P.prefs.src='set';P.prefs.set=id;save();applyPrefs();tab('study');}
+function delSet(id){if(!confirm(t('delSet')))return;P.sets=P.sets.filter(function(s){return s.id!==id;});save();renderSets();poolInfo();}
+
+function copyLink(){var i=document.getElementById('mylink');i.select();
+  try{if(navigator.clipboard)navigator.clipboard.writeText(i.value);else document.execCommand('copy');
+    alert(t('copied'));}catch(e){}}
+function renderStats(){document.getElementById('mylink').value=myLink();var c={};STATUSES.forEach(function(s){c[s]=0;});
+  V.forEach(function(w){var s=stOf(w.id);if(c[s]!==undefined)c[s]++;});
+  var seen=0,rt=0;Object.keys(P.stat).forEach(function(k){seen+=P.stat[k].s;rt+=P.stat[k].r;});
+  var L=[[t('total'),num(V.length)],[t('stKnown'),num(c.known)],[t('stGood'),num(c.good)],
+    [t('stLearning'),num(c.learning)],[t('stNew'),num(c['new'])],
+    [t('cardsSeen'),num(seen)],[t('hitRate'),seen?Math.round(100*rt/seen)+'%':'—']];
+  document.getElementById('statGrid').innerHTML=L.map(function(x){
+    return '<div class="stat"><b>'+x[1]+'</b><span>'+x[0]+'</span></div>';}).join('');
+  document.getElementById('catStats').innerHTML=Object.keys(CATS).map(function(k){
+    var l=V.filter(function(w){return w.c.indexOf(k)>=0;});if(!l.length)return '';
+    var kn=l.filter(function(w){var s=stOf(w.id);return s==='known'||s==='good';}).length;
+    var pc=Math.round(100*kn/l.length);
+    return '<div style="padding:7px 0;border-bottom:1px solid var(--line)"><div class="row"><b>'+catName(k)+
+      '</b><div style="flex:1"></div><span class="dim">'+num(kn)+' / '+num(l.length)+' · '+pc+'%</span></div>'+
+      '<div class="bar" style="margin:6px 0 0"><i style="width:'+pc+'%"></i></div>'+
+      '<span class="dim tiny">'+catDesc(k)+'</span></div>';}).join('');}
+function doExport(){var b=new Blob([JSON.stringify({user:user,data:P,exported:new Date().toISOString()},null,1)],{type:'application/json'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(b);
+  a.download='sanasto-'+user.toLowerCase()+'-'+new Date().toISOString().slice(0,10)+'.json';a.click();}
+function doImport(inp){var f=inp.files[0];if(!f)return;var r=new FileReader();
+  r.onload=function(){try{var j=JSON.parse(r.result),d=j.data||j;
+    if(!d.status)throw new Error('not a sanasto backup');
+    if(!confirm(t('confirmImport',{u:user})))return;
+    P=Object.assign(blank(),d);P.prefs=Object.assign(blank().prefs,P.prefs||{});
+    save();applyPrefs();renderStats();alert(t('imported'));
+  }catch(e){alert(t('importFail',{e:e.message}));}};
+  r.readAsText(f);inp.value='';}
+function wipe(){if(!confirm(t('confirmWipe',{u:user})))return;P=blank();save();applyPrefs();renderStats();}
+
+(function(){
+  var sl=null;try{sl=localStorage.getItem(LKEY);}catch(e){}
+  setLang(sl==='fi'?'fi':'en');
+  var uu=urlUser(),fresh=false;
+  if(uu){fresh=!localStorage.getItem(KEY+uu.toLowerCase());
+    document.getElementById('uname').value=uu;login();
+    if(fresh&&!isWeb())setTimeout(function(){alert(t('newProfile',{u:uu}));},60);}
+  else{var l=localStorage.getItem(LAST);
+    if(l&&localStorage.getItem(KEY+l.toLowerCase())){document.getElementById('uname').value=l;login();}}
+  document.getElementById('uname').addEventListener('keydown',function(e){if(e.key==='Enter')login();});
+})();
+</script>
+</body>
+</html>
